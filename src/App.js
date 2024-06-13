@@ -8,9 +8,11 @@ import {
 	Tablist,
 	Tab,
 	Group,
+	Avatar,
 } from "evergreen-ui";
 import React, { useState } from "react";
 import axios from "axios";
+import Repo from "./components/Repo";
 
 function App() {
 	const [username, setUsername] = useState("");
@@ -25,7 +27,11 @@ function App() {
 			`https://api.github.com/search/users?q=${username}`
 		);
 		if (response.data.items.length > 0) {
-			console.log(response.data);
+			/* PRINT USER DATA */
+			//		console.log("User Data: ");
+			//		console.log(response.data);
+			/* PRINT USER DATA */
+
 			setUserData(response.data.items[0]);
 			fetchFollowers(response.data.items[0].followers_url);
 			fetchFollowing(
@@ -47,7 +53,13 @@ function App() {
 
 	const fetchRepos = async (url) => {
 		const response = await axios.get(url);
-		setRepos(response.data.map((repo) => repo.name));
+
+		/* PRINT USER REPOS */
+		//		console.log("User Repos: ");
+		//		console.log(response.data);
+		/* PRINT USER REPOS */
+
+		setRepos(response.data);
 	};
 
 	const handleSubmit = (event) => {
@@ -78,6 +90,7 @@ function App() {
 					value={username}
 					onChange={(e) => setUsername(e.target.value)}
 					placeholder="Github Username"
+					label={"Github Username"}
 					className="input"
 					width={"100%"}
 				/>
@@ -85,12 +98,23 @@ function App() {
 			</Pane>
 
 			{userData && (
-				<Pane width="80%">
-					<img src={userData.avatar_url} />
+				<Pane width="100vw" left={0} marginX={0}>
+					{/* User basic display */}
+					<Pane
+						display={"flex"}
+						alignItems={"center"}
+						gap={"1rem"}
+						marginBottom={"1rem"}
+						width={"80vw"}
+						marginLeft={"10vw"}
+					>
+						<Avatar src={userData.avatar_url} name="" size={60} />
 
-					<Text size={600}>{userData.login}</Text>
+						<Text fontSize={"1.5rem"}>{userData.login}</Text>
+					</Pane>
 
-					<Group>
+					{/* Tabs */}
+					<Group width={"80vw"} marginLeft={"10vw"}>
 						{options.map(({ label, value }) => (
 							<Button
 								key={label}
@@ -99,32 +123,46 @@ function App() {
 									setSelectedValue(value);
 									setSelectedTab(value);
 								}}
+								fontSize={"1.15rem"}
+								paddingY={"1.25rem"}
+								paddingX={"1.75rem"}
+								borderRadius={"1rem"}
 							>
 								{label}
 							</Button>
 						))}
 					</Group>
 
+					{/* Content */}
 					{selectedTab === "followers" && (
 						<UnorderedList>
 							{followers.map((follower, index) => (
-								<ListItem key={index}>{follower}</ListItem>
+								<ListItem key={index} fontSize={"1rem"}>
+									{follower}
+								</ListItem>
 							))}
 						</UnorderedList>
 					)}
 					{selectedTab === "following" && (
 						<UnorderedList>
 							{following.map((followee, index) => (
-								<ListItem key={index}>{followee}</ListItem>
+								<ListItem fontSize={"1rem"} key={index}>
+									{followee}
+								</ListItem>
 							))}
 						</UnorderedList>
 					)}
 					{selectedTab === "repos" && (
-						<UnorderedList>
+						<Pane width={"80vw"} marginLeft={"10vw"}>
 							{repos.map((repo, index) => (
-								<ListItem key={index}>{repo}</ListItem>
+								<div key={index}>
+									{/* <ListItem fontSize={"1rem"} key={index}>
+									{repo}
+								</ListItem> */}
+									<Repo repo={repo} />
+								</div>
 							))}
-						</UnorderedList>
+						</Pane>
 					)}
 				</Pane>
 			)}
